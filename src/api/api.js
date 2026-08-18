@@ -1,22 +1,24 @@
 import axios from "axios";
 
 const API = axios.create({
-    baseURL: "http://localhost:8080/api",
+  baseURL: "http://localhost:8080/api",
 });
 
-// JWT Token Automatically Add
 API.interceptors.request.use(
-    (config) => {
+  (config) => {
+    const token = localStorage.getItem("token");
 
-        const token = localStorage.getItem("token");
+    // Download API is public, so don't send JWT
+    if (
+      token &&
+      !config.url.startsWith("/files/download/")
+    ) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
 
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-
-        return config;
-    },
-    (error) => Promise.reject(error)
+    return config;
+  },
+  (error) => Promise.reject(error)
 );
 
 export default API;
